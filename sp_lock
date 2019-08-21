@@ -1,0 +1,78 @@
+sp_lock
+Description
+-------------
+Reports the object names and IDs of processes that currently hold locks.
+
+Syntax
+------------
+sp_lock [spid1[, spid2]] | [@verbose = int]
+
+Parameters
+-------------
+spid1
+is the Adaptive Server process ID number from the master.dbo.sysprocesses table. Run sp_who to get the spid of the locking process.
+
+spid2
+is another Adaptive Server process ID number to check for locks.
+
+@verbose = int
+displays a concatenated name of the table names instead of a spid, such as test..testa, following by the spid.
+
+
+Usage
+------------------------------------------------------
+sp_lock with no parameters reports information on all processes that currently hold locks.
+
+The only user control over locking is through the use of the holdlock keyword in the select statement.
+
+Use the object_name system function to derive a table’s name from its ID number.
+
+sp_lock in versions of the Cluster Edition earlier than 15.0.3 displayed information about only the locks associated with the instance on which you issued the stored procedure. sp_lock on Cluster Edition version 15.0.3 and later displays information about all locks in the cluster.
+
+sp_lock output is ordered by fid and then spid.
+
+The loid column identifies unique lock owner ID of the blocking transaction. Even loid values indicate that a local transaction owns the lock. Odd values indicate that an external transaction owns the lock.
+
+The locktype column indicates whether the lock is a shared lock (“Sh” prefix), an exclusive lock (“Ex” prefix) or an update lock, and whether the lock is held on a table (“table” or “intent”) or on a page (“page”).
+
+A “blk” suffix in the “locktype” column indicates that this process is blocking another process that needs to acquire a lock. As soon as this process completes, the other process(es) moves forward. A “demand” suffix in the “locktype” column indicates that the process is attempting to acquire an exclusive lock. See the Performance and Tuning Guide for more information about lock types.
+
+The class column indicates whether a lock is associated with a cursor. It displays one of the following:
+
+“Non Cursor Lock” indicates that the lock is not associated with a cursor.
+
+“Cursor Id number” indicates that the lock is associated with the cursor ID number for that Adaptive Server process ID.
+
+A cursor name indicates that the lock is associated with the cursor cursor_name that is owned by the current user executing sp_lock.
+
+The fid column identifies the family (including the coordinating process and its worker processes) to which a lock belongs. Values for fid are:
+
+A zero value indicates that the task represented by the spid is executed serially. It is not participating in parallel execution.
+
+A nonzero value indicates that the task (spid) holding the lock is a member of a family of processes (identified by fid) executing a statement in parallel. If the value is equal to the spid, it indicates that the task is the coordinating process in a family executing a query in parallel.
+
+The context column identifies the context of the lock. Worker processes in the same family have the same context value. Legal values for “context” are as follows:
+
+“NULL” means that the task holding this lock is either a query executing serially, or is a query executing in parallel in transaction isolation level 1.
+
+“Sync-pt duration request” means that the task holding the lock will hold the lock until the query is complete.
+
+A lock’s context may be “Sync-pt duration request” if the lock is a table lock held as part of a parallel query, if the lock is held by a worker process at transaction isolation level 3, or if the lock is held by a worker process in a parallel query and must be held for the duration of the transaction.
+
+“Ind pg” indicates locks on index pages (allpages-locked tables only)
+
+“Inf key” indicates an infinity key lock (for certain range queries at transaction isolation level 3 on data-only-locked tables)
+
+“Range” indicates a range lock (for range queries at transaction isolation level 3 on data-only-locked tables)
+
+These new values may appear in combination with “Fam dur” (which replaces “Sync pt duration”) and with each other, as applicable.
+
+The row column displays the row number for row-level locks.
+
+sp_lock output also displays the following lock types:
+
+“Sh_row” indicates shared row locks
+
+“Update_row” indicates update row locks
+
+“Ex_row” indicates exclusive row locks
