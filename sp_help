@@ -1,0 +1,62 @@
+Syntax
+sp_help [objname]
+Parameters --- objname
+is the name of any object in sysobjects or any user-defined datatype or system datatype in systypes. You cannot specify database names. objname can include tables, views, stored procedures, logs, rules, defaults, triggers, referential constraints, encryption keys, and check constraints, but refers to tables when you enable optimistic_index_lock. Use owner names if the object owner is not the user running the command and is not the database owner.
+
+
+sp_help looks for an object in the current database only.
+
+sp_help follows the Adaptive Server rules for finding objects:
+
+If you do not specify an owner name, and you own an object with the specified name, sp_help reports on that object.
+
+If you do not specify an owner name, and do not own an object of that name, but the database owner does, sp_help reports on the database owner’s object.
+
+If neither you nor the database owner owns an object with the specified name, sp_help reports an error condition, even if an object with that name exists in the database for a different owner. Qualify objects that are owned by database users other than yourself and the database owner with the owner’s name, as shown in Example 4.
+
+If both you and the database owner own objects with the specified name, and you want to access the database owner’s object, specify the name in the format dbo.objectname.
+
+sp_help works on temporary tables if you issue it from tempdb.
+
+Columns with the IDENTITY property have an “Identity” value of 1; others have an “Identity” value of 0. In example 2, there are no IDENTITY columns.
+
+sp_help lists any indexes on a table, including indexes created by defining unique or primary key constraints in the create table or alter table statements. It also lists any attributes associated with those indexes. However, sp_help does not describe any information about the integrity constraints defined for a table. Use sp_helpconstraint for information about any integrity constraints.
+
+sp_help displays the following new settings:
+
+The locking scheme, which can be set with create table and changed with alter table
+
+The expected row size, which can be set with create table and changed with sp_chgattribute
+
+The reserve page gap, which can be set with create table and changed with sp_chgattribute
+
+The row lock promotion settings, which can be set or changed with sp_setpglockpromote and dropped with sp_droprowlockpromote
+
+Examples
+
+
+
+
+
+
+sp_help : Getting information about a table
+To get information about a specific table, use its name as your parameter:
+
+-- get information on the table called DIRECTOR
+sp_help 'Director'
+
+
+If you want to use a system (or your own) stored procedure, but can't quite remember what parameters it takes, try this:
+
+-- what parameters does a procedure take?
+
+sp_help 'sp_who'
+
+This shows that this particular system stored procedure (sp_who) takes one parameter:
+
+
+Getting a list of everything in your database
+Use sp_help without any parameters to get a listing of everything in your database:
+
+-- get a list of everything!
+sp_help
