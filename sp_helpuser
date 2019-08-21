@@ -1,0 +1,46 @@
+sp_helpuser
+Description
+------------
+Reports information about a particular user, group, or alias, or about all users, in the current database.
+
+Syntax
+------------
+sp_helpuser [name_in_db]
+Parameters
+name_in_db
+is the user’s name in the current database.
+
+Examples
+Example 1
+Displays information about all users in the current database:
+
+->->->-> sp_helpuser
+Users_name ID_in_db    Group_name  Login_name 
+---------  --------    ----------  ---------- 
+ann        4           hackers     ann 
+dbo        1           public      sa 
+guest      2           public      NULL 
+judy       3           hackers     judy
+
+Example 2
+Displays information about the Database Owner (user name “dbo”):
+
+->->->-> sp_helpuser dbo
+Users_name     ID_in_db    Group_name  Login_name
+----------     --------    ----------  ---------- 
+dbo            1           public      sa 
+Users aliased to user. 
+Login_name
+------------------------------- 
+andy
+christa
+howard
+linda 
+
+Usage
+sp_helpuser reports information about all users of the current database. If you specify a name_in_db, sp_helpuser reports information on the specified user only.
+
+If the specified user is not listed in the current database’s sysusers table, sp_helpuser checks to see if the user is aliased to another user or is a group name.
+
+Permissions
+Any user can execute sp_helpuser.
